@@ -5,11 +5,15 @@
     <title>Audio Recoder</title>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.0.js"></script>
     <script type="text/javascript" src="Recorder.js"></script>
+    <script type="text/javascript" src="exportWAV.js"></script>
     <script type="text/javascript" src="useRecorder.js"></script>
   </head>
   <body>
     <h1>Audio Recoder</h1>
-    <audio id="preview">
-    </audio>
+    <input type="button" id="start" value="start"/>
+    <input type="button" id="stop" value="stop"/>
+    <input type="button" id="play" value="play"/>
+    <a id="download"></a>
+    <audio id="preview" controls></audio>
   </body>
 </html>
