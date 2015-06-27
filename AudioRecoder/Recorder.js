@@ -12,12 +12,12 @@ window.AudioContext =
     window.AudioContext||
     window.webkitAudioContext;
 
-window.Recorder = function(audioContext, bufferSize){
+window._Recorder = function(audioContext, bufferSize){
   var o = this;
   o.audioContext = audioContext;
   o.bufferSize = bufferSize || 4096;
 };
-Recorder.prototype = {
+_Recorder.prototype = {
   audioContext : '',
   bufferSize : '',
   audioBufferArray : [],

@@ -1,21 +1,62 @@
 /*global $, URL, exportWAV*/
 
-var audioContext = new AudioContext();
-var recorder = new Recorder(audioContext);
+// var audioContext = new AudioContext();
+var audioContext = new OfflineAudioContext(2, 441000, 44100);
+audioContext.oncomplete = function (e) {
+  console.log(e.renderedBuffer.getChannelData(0).buffer);
+  var hoge = [
+    e.renderedBuffer.getChannelData(0).buffer,
+    e.renderedBuffer.getChannelData(1).buffer
+  ];
+
+  var worker = new Worker('Recorderjs/recorderWorker.js');
+
+  var buffer = e.renderedBuffer;
+
+  // initialize the new worker
+  worker.postMessage({
+    command: 'init',
+    config: {
+      sampleRate: 44100,
+      numChannels: 2
+    }
+  });
+  
+  worker.onmessage = function (e) {
+    var blob = e.data;
+    console.log(e);
+    var url = URL.createObjectURL(blob);
+    $("#preview").attr("src", url);
+    $("#download").
+      attr({href: url, download: "hogehoge.wav"}).
+      text("download");
+  };
+  
+  worker.postMessage({
+    command: 'record',
+    buffer: [
+      buffer.getChannelData(0),
+      buffer.getChannelData(1)
+    ]
+  });
+  
+  // ask the worker for a WAV
+  worker.postMessage({
+    command: 'exportWAV',
+    type: 'audio/wav'
+  });
+  // rc.exportWAV(function (blob) {console.log(blob);});
+};
+// var scriptProcessorNode = audioContext.createScriptProcessor(16384, 2, 1);
+// scriptProcessorNode.connect(audioContext.destination);
+// scriptProcessorNode.onaudioprocess = function () {
+//   console.log(arguments);
+//   arguments[0].outputBuffer = arguments[0].inputBuffer;
+// };
+var recorder = new _Recorder(audioContext);
 
 $().ready(function () {
   window.ac = audioContext;
-  // var xhr = new XMLHttpRequest();
-  // xhr.open('GET', 'audio/sample.mp3', true);
-  // xhr.responseType = 'arraybuffer';
-  // xhr.onload = function(e) {
-  //   console.log(this.response.byteLength);
-  //   audioContext.decodeAudioData(this.response, function(buffer) {
-  //     sampleAudioBuffer = buffer;
-  //   }, onError);
-  //   var onError = function () {alert("XHR error");};
-  // };
-  // xhr.send();
 
   var sampleAudioBuffer = null;
   var sampleAudioBuffer2 = null;
@@ -53,7 +94,9 @@ $().ready(function () {
       recordedSource = createSource(sampleAudioBuffer2, audioContext);
       sampleSource.gainNode.gain.value = 0.5;
       console.log();
-      if (!sampleSource.source.start) {
+      audioContext.startRendering();
+
+      if (false && !sampleSource.source.start) {
         sampleSource.source.noteOn(0);
         recordedSource.source.noteOn(0);
       } else {
@@ -96,12 +139,14 @@ function createSource(buffer, context) {
   var gainNode = context.createGain ? context.createGain() : context.createGainNode();
   console.log(buffer);
   source.buffer = buffer;
+  console.log(source);
   // Turn on looping
   source.loop = true;
   // Connect source to gain.
   source.connect(gainNode);
   // Connect gain to destination.
-  gainNode.connect(context.destination);
+  gainNode.connect(audioContext.destination);
+  // gainNode.connect(scriptProcessorNode);
 
   return {
     source: source,
