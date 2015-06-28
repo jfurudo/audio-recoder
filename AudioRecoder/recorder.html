@@ -11,9 +11,13 @@
   </head>
   <body>
     <h1>Audio Recoder</h1>
-    <input type="button" id="recStart" value="rec start"/>
-    <input type="button" id="recStop" value="rec stop"/>
-    <a id="download"></a>
+    <form id="voiceRecoder">
+      <label for="fileUploded"></label>
+      <input id="fileUploded" type="file"/>
+      <input type="button" id="recStart" value="rec start"/>
+      <input type="button" id="recStop" value="rec stop"/>
+      <a id="download"></a>
+    </form>
     <audio id="preview" controls></audio>
     <br />
     <input type="button" id="play" value="play"/>
