@@ -2,17 +2,25 @@
 
 // var audioContext = new AudioContext();
 var audioContext = new OfflineAudioContext(2, 441000, 44100);
-audioContext.oncomplete = function (e) {
+var completeCallback = function (e) {
   console.log(e.renderedBuffer.getChannelData(0).buffer);
   var hoge = [
     e.renderedBuffer.getChannelData(0).buffer,
     e.renderedBuffer.getChannelData(1).buffer
   ];
+  var ab = e.renderedBuffer.getChannelData(0).buffer;
+  var view1 = new Float32Array(ab, 0, 10000);
 
+  console.log(view1);
+  console.log(this);
   var worker = new Worker('Recorderjs/recorderWorker.js');
 
   var buffer = e.renderedBuffer;
 
+  var ac = new AudioContext();
+  var r = createSource(buffer, ac);
+  r.source.start(0);
+  
   // initialize the new worker
   worker.postMessage({
     command: 'init',
@@ -44,9 +52,10 @@ audioContext.oncomplete = function (e) {
   worker.postMessage({
     command: 'exportWAV',
     type: 'audio/wav'
-  });
-  // rc.exportWAV(function (blob) {console.log(blob);});
+  });  
 };
+audioContext.oncomplete = completeCallback;
+
 // var scriptProcessorNode = audioContext.createScriptProcessor(16384, 2, 1);
 // scriptProcessorNode.connect(audioContext.destination);
 // scriptProcessorNode.onaudioprocess = function () {
@@ -68,25 +77,25 @@ $().ready(function () {
   });
   
   var uiInit = function() {
-    $("#recStart").click(function () {
-      recorder.recStart();
-    });
+    // $("#recStart").click(function () {
+    //   recorder.recStart();
+    // });
 
-    $("#recStop").click(function () {
-      recorder.recStop();
+    // $("#recStop").click(function () {
+    //   recorder.recStop();
 
-      var blob = exportWAV(recorder.getAudioBufferArray(),
-                           audioContext.sampleRate);
-      var url = URL.createObjectURL(blob);
-      $("#preview").attr("src", url);
-      $("#download").
-        attr({href: url, download: "hogehoge.wav"}).
-        text("download");
-    });
+    //   var blob = exportWAV(recorder.getAudioBufferArray(),
+    //                        audioContext.sampleRate);
+    //   var url = URL.createObjectURL(blob);
+    //   $("#preview").attr("src", url);
+    //   $("#download").
+    //     attr({href: url, download: "hogehoge.wav"}).
+    //     text("download");
+    // });
 
     var sampleSource = null;
     var recordedSource = null;
-    $("#play").click(function () {
+    $("#hoge").click(function () {
       console.log(sampleAudioBuffer);
       console.log(sampleAudioBuffer2);
       sampleSource = createSource(sampleAudioBuffer, audioContext);
@@ -97,6 +106,10 @@ $().ready(function () {
       audioContext.startRendering();
 
       if (false && !sampleSource.source.start) {
+
+
+        
+        
         sampleSource.source.noteOn(0);
         recordedSource.source.noteOn(0);
       } else {
@@ -104,30 +117,30 @@ $().ready(function () {
         recordedSource.source.start(0);
       }
     });
-    $("#stop").click(function () {
-      if (!sampleSource.source.stop) {
-        sampleSource.source.noteOff(0);
-        recordedSource.source.noteOff(0);
-      } else {
-        sampleSource.source.stop();
-        recordedSource.source.stop();
-      }
-    });
-    $("#range").change(function () {
-      console.log(this.max);
-      hoge(this);
-    });
-    var hoge = function(element) {
-      var x = parseInt(element.value) / parseInt(element.max);
-      console.log(x);
-      // Use an equal-power crossfading curve:
-      var gain1 = Math.cos(x * 0.5*Math.PI);
-      var gain2 = Math.cos((1.0 - x) * 0.5*Math.PI);
-      console.log("gain1", gain1);
-      console.log("gain2", gain2);
-      sampleSource.gainNode.gain.value = gain1;
-      recordedSource.gainNode.gain.value = gain2;
-    };
+    // $("#stop").click(function () {
+    //   if (!sampleSource.source.stop) {
+    //     sampleSource.source.noteOff(0);
+    //     recordedSource.source.noteOff(0);
+    //   } else {
+    //     sampleSource.source.stop();
+    //     recordedSource.source.stop();
+    //   }
+    // });
+    // $("#range").change(function () {
+    //   console.log(this.max);
+    //   hoge(this);
+    // });
+    // var hoge = function(element) {
+    //   var x = parseInt(element.value) / parseInt(element.max);
+    //   console.log(x);
+    //   // Use an equal-power crossfading curve:
+    //   var gain1 = Math.cos(x * 0.5*Math.PI);
+    //   var gain2 = Math.cos((1.0 - x) * 0.5*Math.PI);
+    //   console.log("gain1", gain1);
+    //   console.log("gain2", gain2);
+    //   sampleSource.gainNode.gain.value = gain1;
+    //   recordedSource.gainNode.gain.value = gain2;
+    // };
   };
 
   uiInit();
@@ -145,7 +158,7 @@ function createSource(buffer, context) {
   // Connect source to gain.
   source.connect(gainNode);
   // Connect gain to destination.
-  gainNode.connect(audioContext.destination);
+  gainNode.connect(context.destination);
   // gainNode.connect(scriptProcessorNode);
 
   return {

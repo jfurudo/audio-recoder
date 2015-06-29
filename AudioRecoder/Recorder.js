@@ -42,7 +42,8 @@ _Recorder.prototype = {
     scriptProcessor.connect(o.audioContext.destination);
     o.scriptProcessor = scriptProcessor;
   },
-  recStart : function(){
+  recStart : function(cb){
+    console.log(cb);
     var o = this;
     if(o.stream){
       o.recording(o.stream);
@@ -50,7 +51,10 @@ _Recorder.prototype = {
     else{
       navigator.getUserMedia(
         {video: false, audio: true},
-        function(stream){o.recording(stream);},
+        function(stream){
+          o.recording(stream);
+          cb();
+        },
         function(err){
           console.log(err.name ? err.name : err);
         }

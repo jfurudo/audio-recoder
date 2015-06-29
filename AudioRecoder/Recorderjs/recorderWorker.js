@@ -46,6 +46,7 @@ function exportWAV(type){
   } else {
       var interleaved = buffers[0];
   }
+  console.log(interleaved);
   var dataview = encodeWAV(interleaved);
   var audioBlob = new Blob([dataview], { type: type });
 
