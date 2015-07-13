@@ -60,6 +60,13 @@ models.AudioNode = Backbone.Model.extend({
   stop: function () {
     var self = this;
     self.get("source").stop();
+  },
+
+  getBlob: function () {
+    var self = this;
+    var blob = exportWAV(self.get("audioBufferArray"),
+                         self.context.sampleRate);
+    return blob;
   }
 });
 
@@ -116,5 +123,6 @@ models.RecodedAudioNode = models.AudioNode.extend({
     var self = this;
     self.recorder.recStop();
     self.set("audioBuffer", self.recorder.getAudioBuffer());
+    self.set("audioBufferArray", self.recorder.getAudioBufferArray());
   }
 });
