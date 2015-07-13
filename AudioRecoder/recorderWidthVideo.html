@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta cahrset="utf8" />
+      <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.0.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.2.1/backbone.js"></script>
+      <script type="text/javascript" src="Recorder.js"></script>
+      <script type="text/javascript" src="exportWAV.js"></script>
+      <script type="text/javascript" src="Recorderjs/recorder.js"></script>
+      <script type="text/javascript" src="models.js"></script>
+      <script type="text/javascript" src="_main.js"></script>
+  </head>
+  <body>
+      <input type="button" id="recStart" value="rec start"/>
+      <input type="button" id="recStop" value="rec stop"/>
+      <input type="button" id="download" value="download"/>
+      <br />
+      <video id="video" src="audio/sample.mp4">
+      </video>
+      <canvas width="320px" height="180px">
+      </canvas>
+      <audio id="audio" controls>
+      </audio>
+  </body>
+</html>
